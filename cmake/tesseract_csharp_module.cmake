@@ -40,7 +40,7 @@ function(tesseract_csharp_module PY_MOD_NAME )
     ${PYTHON_INCLUDE_DIRS}
     ${NUMPY_INCLUDE_DIR}
     )
-  target_compile_definitions(${PY_MOD_REAL_NAME} PRIVATE -DSWIG_TYPE_TABLE=tesseract_python )
+  target_compile_definitions(${PY_MOD_REAL_NAME} PRIVATE -DSWIG_TYPE_TABLE=tesseract_csharp )
  
   # set_target_properties(${PY_MOD_REAL_NAME}
   #   PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/python/tesseract_robotics/${PY_MOD_PACKAGE})
@@ -54,5 +54,18 @@ function(tesseract_csharp_module PY_MOD_NAME )
   target_cxx_version(${PY_MOD_REAL_NAME} PUBLIC VERSION ${TESSERACT_CXX_VERSION})
   set_target_properties(${PY_MOD_REAL_NAME}
                                   PROPERTIES OUTPUT_NAME ${PY_MOD_NAME}_native)
+
+  if(WIN32)
+  install(TARGETS ${PY_MOD_REAL_NAME}
+    EXPORT tesseract-csharp-targets
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION bin
+    ARCHIVE DESTINATION lib)
+  else()
+  install(TARGETS ${PY_MOD_REAL_NAME}
+    EXPORT tesseract-csharp-targets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+  endif()
 
 endfunction()
