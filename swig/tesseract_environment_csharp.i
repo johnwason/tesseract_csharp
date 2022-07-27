@@ -1,5 +1,5 @@
 /**
- * @file tesseract_geometry_csharp.i
+ * @file tesseract_environment_csharp.i
  * @brief The tesseract_common_csharp SWIG master file.
  *
  * @author John Wason
@@ -24,14 +24,18 @@
  * limitations under the License.
  */
 
- %module(directors="1") tesseract_geometry_csharp
+ %module(directors="1") tesseract_environment_csharp
 
 #pragma SWIG nowarn=473
 
 %include "tesseract_swig_include.i"
 %include "tesseract_std_function.i"
-tesseract_csimports( "using global::tesseract_common;\n" );
 
-%import "tesseract_common_csharp.i"
+%import "tesseract_kinematics_csharp.i"
+%import "tesseract_collision_csharp.i"
+%import "tesseract_srdf_csharp.i"
+%import "tesseract_state_solver_csharp.i"
 
- %include <tesseract_geometry_python.i>
+tesseract_csimports( "using global::tesseract_common;\nusing global::tesseract_geometry;\nusing global::tesseract_scene_graph;\nusing global::tesseract_srdf;\nusing global::tesseract_state_solver;\nusing global::tesseract_collision;\nusing global::tesseract_kinematics;" );
+
+%include <tesseract_environment_python.i>
