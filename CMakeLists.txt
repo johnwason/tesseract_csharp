@@ -61,6 +61,7 @@ include_directories(
   ${tesseract_kinematics_INCLUDE_DIRS}
   ${tesseract_urdf_INCLUDE_DIRS}
   ${tesseract_scene_graph_INCLUDE_DIRS}
+  ${tesseract_state_solver_INCLUDE_DIRS}
   ${tesseract_srdf_INCLUDE_DIRS}
   ${tesseract_environment_INCLUDE_DIRS}
   ${tesseract_command_language_INCLUDE_DIRS}
