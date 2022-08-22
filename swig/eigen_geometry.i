@@ -24,6 +24,10 @@
  * limitations under the License.
  */
 
+%{
+   #include <Eigen/Geometry>
+ %}
+
 namespace Eigen
 {
     class AngleAxisd;

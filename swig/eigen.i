@@ -24,104 +24,83 @@
  * limitations under the License.
  */
 
+ %{
+   #include <Eigen/Dense>
+ %}
+
+%define %eigen_matrix(NAME, T)
+
 namespace Eigen
 {
-    class MatrixXd
+    class NAME
     {
     public:
-        MatrixXd(size_t rows, size_t cols);
+        NAME(size_t rows, size_t cols);
         size_t rows();
         size_t cols();
         %extend
         {
-            double get(size_t n, size_t m)
+            T get(size_t n, size_t m)
             {
                 return (*$self)(n,m);
             }
 
-            double set(size_t n, size_t m, double val)
+            void set(size_t n, size_t m, T val)
             {
-                return (*$self)(n,m) = val;
+                (*$self)(n,m) = val;
             }
         }
 
     };
+
+    
 }
+%enddef
+
+%eigen_matrix(MatrixXd,double);
+%eigen_matrix(MatrixXi,int);
 
 // ----------------------------------------------------------------------------
 // Macro to create the typemap for Eigen classes
 // ----------------------------------------------------------------------------
 
+%define %eigen_cstypes(TYPE, EIGENMAT)
+  %typemap(cstype) TYPE "EIGENMAT"
+  %typemap(imtype, out="global::System.IntPtr") TYPE "global::System.Runtime.InteropServices.HandleRef"
+  %typemap(csin) TYPE "EIGENMAT.getCPtr($csinput)"
+  %typemap(csout, excode=SWIGEXCODE) TYPE {
+    EIGENMAT ret = new EIGENMAT($imcall, true);$excode
+    return ret;
+  }
+  %typemap(csvarout, excode=SWIGEXCODE2) TYPE %{
+    get {
+      EIGENMAT ret = new EIGENMAT($imcall, true);$excode
+      return ret;
+    } 
+  %}
+%enddef
+
 %define %eigen_typemaps(CLASS, EIGENMAT)
- //%naturalvar CLASS;
- //%typemap(ctype) CLASS "Eigen::MatrixXd";
-  %typemap(cstype) CLASS "MatrixXd"
-  %typemap(imtype, out="global::System.IntPtr") CLASS "global::System.Runtime.InteropServices.HandleRef"
- %typemap(csin) CLASS "MatrixXd.getCPtr($csinput)"
- %typemap(csout, excode=SWIGEXCODE) CLASS {
-    MatrixXd ret = new MatrixXd($imcall, true);$excode
-    return ret;
-  }
-%typemap(csvarout, excode=SWIGEXCODE2) CLASS %{
-    get {
-      MatrixXd ret = new MatrixXd($imcall, true);$excode
-      return ret;
-    } 
-  %}
 
-  %typemap(cstype) CLASS & "MatrixXd"
-  %typemap(imtype, out="global::System.IntPtr") CLASS & "global::System.Runtime.InteropServices.HandleRef"
- %typemap(csin) CLASS & "MatrixXd.getCPtr($csinput)"
- %typemap(csout, excode=SWIGEXCODE) CLASS & {
-    MatrixXd ret = new MatrixXd($imcall, true);$excode
-    return ret;
-  }
-  %typemap(csvarout, excode=SWIGEXCODE2) CLASS & %{
-    get {
-      MatrixXd ret = new MatrixXd($imcall, $owner);$excode
-      return ret;
-    } 
-  %}
-
-  %typemap(cstype) CLASS const& "MatrixXd"
-  %typemap(imtype, out="global::System.IntPtr") CLASS const& "global::System.Runtime.InteropServices.HandleRef"
- %typemap(csout, excode=SWIGEXCODE) CLASS const& {
-    MatrixXd ret = new MatrixXd($imcall, true);$excode
-    return ret;
-  }
- %typemap(csin) CLASS const&  "MatrixXd.getCPtr($csinput)"
-  %typemap(cstype) CLASS const "MatrixXd" 
-  %typemap(imtype, out="global::System.IntPtr") CLASS const "global::System.Runtime.InteropServices.HandleRef"
- %typemap(csin) CLASS const "MatrixXd.getCPtr($csinput)"
- %typemap(csout, excode=SWIGEXCODE) CLASS const {
-    MatrixXd ret = new MatrixXd($imcall, true);$excode
-    return ret;
-  }
-
- 
- 
- %typemap(cstype)  Eigen::Ref<const CLASS > const&  "MatrixXd"
- %typemap(imtype, out="global::System.IntPtr") Eigen::Ref<const CLASS > const& "global::System.Runtime.InteropServices.HandleRef"
- %typemap(csin)  Eigen::Ref<const CLASS > const& "MatrixXd.getCPtr($csinput)"
-//  %typemap(csout, excode=SWIGEXCODE) const Eigen::Ref<const CLASS >& const {
-//     MatrixXd ret = new MatrixXd($imcall, true);$excode
-//     return ret;
-//   }
-
-  
+%eigen_cstypes(%arg(CLASS), EIGENMAT);
+%eigen_cstypes(%arg(CLASS &), EIGENMAT);
+%eigen_cstypes(%arg(CLASS const&), EIGENMAT);
+%eigen_cstypes(%arg(CLASS const), EIGENMAT);
+%eigen_cstypes(%arg(Eigen::Ref<const CLASS > const&), EIGENMAT);
+%eigen_cstypes(%arg(std::shared_ptr<const CLASS> const&), EIGENMAT);
 
 // Argout: const & (Disabled and prevents calling of the non-const typemap)
 %typemap(argout) const CLASS & ""
 
-%typemap(in, numinputs=0) CLASS & (Eigen::MatrixXd* argp ) {
+%typemap(in, numinputs=0) CLASS & (Eigen::EIGENMAT* argp ) {
   $1 = &temp;
 }
 
 // In: (nothing: no constness)
-%typemap(in) CLASS (Eigen::MatrixXd* argp)
+%typemap(in) CLASS (Eigen::EIGENMAT* argp)
 {
   // Eigen in: CLASS
-   argp = (Eigen::MatrixXd*)$input; 
+   argp = (Eigen::EIGENMAT*)$input; 
    if (!argp) {
      SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null $1_type", 0);
      return $null;
@@ -129,10 +108,10 @@ namespace Eigen
    $1 = *argp;
 }
 // In: const&
-%typemap(in) CLASS const& (Eigen::MatrixXd* argp, CLASS temp)
+%typemap(in) CLASS const& (Eigen::EIGENMAT* argp, CLASS temp)
 {
   // Eigen in: const& CLASS
-  argp = (Eigen::MatrixXd*)$input;
+  argp = (Eigen::EIGENMAT*)$input;
   if (!$1) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "$1_type type is null", 0);
     return $null;
@@ -141,10 +120,10 @@ namespace Eigen
   $1 = &temp;
 }
 // In: MatrixBase const&
-%typemap(in, fragment="Eigen_Fragments") Eigen::MatrixBase< CLASS > const& (Eigen::MatrixXd* argp)
+%typemap(in, fragment="Eigen_Fragments") Eigen::MatrixBase< CLASS > const& (Eigen::EIGENMAT* argp)
 {
   // Eigen in: MatrixBase const& CLASS
-  argp = (Eigen::MatrixXd*)$input;
+  argp = (Eigen::EIGENMAT*)$input;
   if (!$1) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "$1_type type is null", 0);
     return $null;
@@ -176,20 +155,20 @@ namespace Eigen
 // Out: (nothing: no constness)
 %typemap(out) CLASS
 {
-    // Eigen in: CLASS
-  $result = new Eigen::MatrixXd($1);
+    // Eigen out: CLASS
+  $result = new Eigen::EIGENMAT($1);
 }
 // Out: const
 %typemap(out) CLASS const
 {
-    // Eigen in: CLASS const
-  $result = new Eigen::MatrixXd($1);
+    // Eigen out: CLASS const
+  $result = new Eigen::EIGENMAT($1);
 }
 // Out: const&
-%typemap(out, fragment="Eigen_Fragments") CLASS const&
+%typemap(out) CLASS const&
 {
-    // Eigen in: CLASS const&
-  $result = new Eigen::MatrixXd(*$1);
+    // Eigen out: CLASS const&
+  $result = new Eigen::EIGENMAT(*$1);
 }
 // Out: & (not yet implemented)
 %typemap(out) CLASS &
@@ -210,10 +189,10 @@ namespace Eigen
   return $null;
 }
 
-%typemap(in) const Eigen::Ref<const CLASS >& (Eigen::MatrixXd* argp, CLASS temp)
+%typemap(in) const Eigen::Ref<const CLASS >& (Eigen::EIGENMAT* argp, CLASS temp)
 {
-  argp = (Eigen::MatrixXd*)$input;
-  if (!$1) {
+  argp = (Eigen::EIGENMAT*)$input;
+  if (!argp) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "$1_type type is null", 0);
     return $null;
   }
@@ -242,6 +221,25 @@ namespace Eigen
 %typemap(in, numinputs=0) Eigen::Ref<CLASS > (CLASS temp) {
   $1 = temp;
 }
+
+// Out: const&
+%typemap(out) std::shared_ptr<const CLASS> const&
+{
+    // Eigen out:  std::shared_ptr<const CLASS> const&
+  $result = new Eigen::EIGENMAT(*($1->get()));
+}
+
+%typemap(in) std::shared_ptr<const CLASS > (Eigen::EIGENMAT* argp)
+{
+  // Eigen in: std::shared_ptr<const CLASS >
+  argp = (Eigen::EIGENMAT*)$input;
+  if (!argp) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "$1_type type is null", 0);
+    return $null;
+  }
+  $1 = std::make_shared<CLASS>(*argp);
+}
+
 
 %enddef
 

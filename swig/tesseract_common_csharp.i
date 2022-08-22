@@ -36,4 +36,8 @@
 
 %include "tesseract_std_function.i"
 
+%include "eigen.i"
+%include "eigen_types.i"
+%include "eigen_geometry.i"
+
 %include <tesseract_common_python.i>

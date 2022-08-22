@@ -28,6 +28,7 @@
 #define SWIG_PYTHON_EXTRA_NATIVE_CONTAINERS
 %}
 
+%typemap(csclassmodifiers) SWIGTYPE, SWIGTYPE *, SWIGTYPE &, SWIGTYPE &&, SWIGTYPE [], SWIGTYPE (CLASS::*) "public partial class"
 
 %include <std_shared_ptr.i>
 %include <std_string.i>

@@ -34,7 +34,11 @@
 // %template() Eigen::Ref<Eigen::MatrixXd>;
 
 %define %eigen_d_typemaps(CLASS)
-%eigen_typemaps(%arg(CLASS), Eigen::MatrixXd)
+%eigen_typemaps(%arg(CLASS), MatrixXd)
+%enddef
+
+%define %eigen_i_typemaps(CLASS)
+%eigen_typemaps(%arg(CLASS), MatrixXi)
 %enddef
 
 %eigen_d_typemaps(Eigen::Vector2d);
@@ -45,6 +49,6 @@
 %eigen_d_typemaps(%arg(Eigen::Matrix3Xd));
 //%eigen_u_typemaps(%arg(Eigen::Matrix<uint32_t,3,Eigen::Dynamic>));
 %eigen_d_typemaps(%arg(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>));
-//%eigen_i_typemaps(Eigen::VectorXi);
+%eigen_i_typemaps(Eigen::VectorXi);
 %eigen_d_typemaps(Eigen::Matrix3d);
 %eigen_d_typemaps(Eigen::Matrix4d);
